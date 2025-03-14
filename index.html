@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرار رنگ‌ها - نسخه چالش‌برانگیز</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: linear-gradient(45deg, #f3ec78, #af4261);
+            background-size: 200% 200%;
+            animation: gradientAnimation 5s ease infinite;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            color: #fff;
+            direction: rtl;
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        #game-area {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .color-button {
+            width: 100px;
+            height: 100px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transform: scale(1);
+            transition: transform 0.2s;
+        }
+        .color-button:hover {
+            transform: scale(1.1);
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        #score {
+            margin-top: 10px;
+            font-size: 1.2em;
+        }
+        .time-bar {
+            width: 80%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+        .time-bar-inner {
+            height: 100%;
+            background: #00ff00;
+            width: 100%;
+            transition: width 1s linear;
+        }
+    </style>
+</head>
+<body>
+    <h1>فرار رنگ‌ها</h1>
+    <p>روی رنگ هدف کلیک کن و امتیاز جمع کن، اما مراقب کلیک اشتباه باش! 😉</p>
+    <div class="time-bar">
+        <div class="time-bar-inner" id="time-bar-inner"></div>
+    </div>
+    <div id="game-area"></div>
+    <div id="message">شروع بازی...</div>
+    <div id="score">امتیاز: 0</div>
+
+    <script>
+        const colors = [
+            { name: "قرمز", code: "red" },
+            { name: "آبی", code: "blue" },
+            { name: "سبز", code: "green" },
+            { name: "زرد", code: "yellow" },
+            { name: "بنفش", code: "purple" },
+            { name: "نارنجی", code: "orange" },
+            { name: "صورتی", code: "pink" },
+            { name: "قهوه‌ای", code: "brown" },
+            { name: "خاکستری", code: "gray" },
+            { name: "سیاه", code: "black" },
+            { name: "سفید", code: "white" }
+        ];
+        let targetColor = "";
+        let score = 0;
+        let timer;
+
+        const gameArea = document.getElementById("game-area");
+        const message = document.getElementById("message");
+        const scoreDisplay = document.getElementById("score");
+        const timeBarInner = document.getElementById("time-bar-inner");
+
+        function generateButtons() {
+            gameArea.innerHTML = "";
+            colors.forEach(color => {
+                const button = document.createElement("button");
+                button.className = "color-button";
+                button.style.backgroundColor = color.code;
+                button.addEventListener("click", () => checkColor(color.name));
+                gameArea.appendChild(button);
+            });
+        }
+
+        function setTargetColor() {
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            targetColor = randomColor.name;
+            message.innerText = `رنگ هدف: ${targetColor}`;
+        }
+
+        function checkColor(selectedColor) {
+            if (selectedColor === targetColor) {
+                score += 5;
+                message.innerText = "آفرین! درست کلیک کردی 🎉";
+            } else {
+                score -= 2;
+                message.innerText = "اشتباه کردی! 😔";
+            }
+            scoreDisplay.innerText = `امتیاز: ${score}`;
+            clearTimeout(timer);
+            startNewRound();
+        }
+
+        function startNewRound() {
+            setTimeout(() => {
+                setTargetColor();
+                generateButtons();
+                startTimer();
+            }, 1000);
+        }
+
+        function startTimer() {
+            timeBarInner.style.width = "100%";
+            let timeLeft = 100;
+            timer = setInterval(() => {
+                timeLeft -= 15; // سرعت کاهش تایمر بیشتر شده
+                timeBarInner.style.width = `${timeLeft}%`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    message.innerText = "وقت تمام شد! 💀";
+                    scoreDisplay.innerText = `امتیاز نهایی: ${score}`;
+                }
+            }, 1000);
+        }
+
+        function startGame() {
+            score = 0;
+            scoreDisplay.innerText = "امتیاز: 0";
+            setTargetColor();
+            generateButtons();
+            startTimer();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
