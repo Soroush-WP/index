@@ -177,10 +177,36 @@
             50% { opacity: 1; }
             
         }
-        .theme-button.dark {
+        /* استایل دکمه تم روشن */
+.theme-button.light {
+    background: linear-gradient(45deg, #f3f4f7, #6c757d);
+    position: relative;
+    transition: background 0.3s ease;
+}
+
+/* استایل دکمه غیرفعال برای تم روشن */
+.theme-button.light:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-image: url('lock-icon.png'); /* آیکون قفل */
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* استایل دکمه تم تاریک */
+.theme-button.dark {
     background: linear-gradient(45deg, #4facfe, #00f2fe);
     position: relative;
     transition: background 0.3s ease;
+}
+
+/* استایل دکمه غیرفعال برای تم تاریک */
+.theme-button.dark:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-image: url('lock-icon.png'); /* آیکون قفل */
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 .theme-button.dark:disabled {
@@ -205,8 +231,14 @@
     <div id="controls">
         <button class="theme-button" onclick="changeTheme('light')">🌞 تم روشن</button>
         <button class="theme-button" onclick="changeTheme('dark')">🌙 تم تاریک</button>
-        <div id="theme-error" style="color: red; font-size: 0.9em; opacity: 0; transition: opacity 0.5s;">
-            <!-- پیام خطا اینجا نمایش داده می‌شود -->
+        
+
+        
+        <!-- پیام خطا -->
+        <div id="theme-error" style="color: rgb(248, 0, 0); font-size: 0.9em; opacity: 0; transition: opacity 0.5s;">
+            <!-- اینجا پیام‌های خطا نمایش داده می‌شوند -->
+        </div>        
+        
         </div>
         
     </div>
@@ -350,7 +382,7 @@
         // مدیریت نمایش راهنما
         function showGuide() {
             alert(`در این بازی شما با کلیک بر روی رنگ هدف میتوانید امتیاز بگیرید!
-    ضمنا هر باری که کلیک اشتباه داشته باشید، از شما 50 امتیاز کسر خواهد شد! مواظب باشید!
+    ضمنا هر بازی که کلیک اشتباه داشته باشید، از شما 50 امتیاز کسر خواهد شد! مواظب باشید!
     با هر 5 حدس درست، سرعت بازی و تایم‌لاین کمتر میشود و زمان کمتری برای حدس زدن دارید!
     موفق باشید دوستان! 🎮`);
         }
@@ -362,11 +394,9 @@
             document.body.style.background = 'linear-gradient(45deg, #000000, #434343)';
             document.body.style.color = '#fff';
             alert("تم تاریک فعال شد!");
-            // حذف قفل از روی دکمه
             const darkButton = document.querySelector('.theme-button.dark');
             darkButton.style.backgroundImage = 'none';
         } else {
-            // نمایش پیام ارور
             const errorElement = document.getElementById("theme-error");
             errorElement.innerText = "باید بهترین رکورد شما بالای ۲۵۰ باشد!";
             errorElement.style.opacity = 1;
@@ -376,17 +406,32 @@
             return;
         }
     } else if (theme === 'light') {
-        document.body.style.background = 'linear-gradient(45deg, #f3f4f7, #6c757d)';
-        document.body.style.color = '#000';
+        if (highScore >= 300) { // تغییر شرط به ۳۰۰
+            document.body.style.background = 'linear-gradient(45deg, #f3f4f7, #6c757d)';
+            document.body.style.color = '#000';
+            alert("تم روشن فعال شد!");
+            const lightButton = document.querySelector('.theme-button.light');
+            lightButton.style.backgroundImage = 'none';
+        } else {
+            const errorElement = document.getElementById("theme-error");
+            errorElement.innerText = "باید بهترین رکورد شما بالای ۳۰۰ باشد!";
+            errorElement.style.opacity = 1;
+            setTimeout(() => {
+                errorElement.style.opacity = 0;
+            }, 3000);
+            return;
+        }
     }
 
     localStorage.setItem("theme", theme);
 }
 
-function updateDarkButtonState() {
+function updateButtonStates() {
     const darkButton = document.querySelector('.theme-button.dark');
+    const lightButton = document.querySelector('.theme-button.light');
+    
     if (highScore < 250) {
-        darkButton.style.backgroundImage = "url('lock-icon.png')"; // مسیر آیکون قفل
+        darkButton.style.backgroundImage = "url('lock-icon.png')";
         darkButton.style.backgroundRepeat = "no-repeat";
         darkButton.style.backgroundPosition = "center";
         darkButton.disabled = true;
@@ -394,10 +439,20 @@ function updateDarkButtonState() {
         darkButton.style.backgroundImage = "none";
         darkButton.disabled = false;
     }
+
+    if (highScore < 300) { // تغییر شرط به ۳۰۰
+        lightButton.style.backgroundImage = "url('lock-icon.png')";
+        lightButton.style.backgroundRepeat = "no-repeat";
+        lightButton.style.backgroundPosition = "center";
+        lightButton.disabled = true;
+    } else {
+        lightButton.style.backgroundImage = "none";
+        lightButton.disabled = false;
+    }
 }
 
 // فراخوانی این تابع هنگام بارگذاری صفحه
-updateDarkButtonState();
+updateButtonStates();
     </script>
 </body>
 </html>
